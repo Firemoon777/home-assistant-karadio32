@@ -1,0 +1,28 @@
+{
+    "config": {
+        "error": {
+            "unreachable": "KaRadio32 seems to be unreachable. Reason: {reason}"
+        },
+        "step": {
+            "user": {
+                "title": "KaRadio32",
+                "description": "Enter url with http://",
+                "data": {
+                    "url": "URL"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "KaRadio32",
+                "description": "Manage KaRadio32",
+                "data": {
+                    "url": "URL",
+                    "update_info": "Update device info"
+                }
+            }
+        }
+    }
+}

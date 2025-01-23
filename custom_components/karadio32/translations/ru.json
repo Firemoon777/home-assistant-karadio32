@@ -1,0 +1,28 @@
+{
+    "config": {
+        "error": {
+            "unreachable": "KaRadio32 недоступно. Причина: {reason}"
+        },
+        "step": {
+            "user": {
+                "title": "KaRadio32",
+                "description": "Введите URL устройства, начиная с http://",
+                "data": {
+                    "url": "URL"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "KaRadio32",
+                "description": "Настройки KaRadio32",
+                "data": {
+                    "url": "URL",
+                    "update_info": "Обновить информацию об устройстве"
+                }
+            }
+        }
+    }
+}

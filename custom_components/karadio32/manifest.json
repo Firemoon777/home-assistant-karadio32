@@ -1,0 +1,10 @@
+{
+    "domain": "karadio32",
+    "name": "Karadio32",
+    "version": "1.0.0",
+    "documentation": "https://github.com/Firemoon777/",
+    "dependencies": ["http"],
+    "codeowners": ["@Firemoon777"],
+    "requirements": [],
+    "config_flow": true
+  }
