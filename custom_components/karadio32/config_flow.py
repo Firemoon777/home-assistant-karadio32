@@ -61,8 +61,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         errors: dict[str, str] = {}
         description_placeholders: dict[str, str] = {}
 
-        _LOGGER.info(self.config_entry.data)
-
         if user_input is not None:
             if user_input.pop("update_info", False):
                 session = async_get_clientsession(self.hass)
@@ -77,7 +75,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 except Exception as e:
                     description_placeholders["reason"] = str(e)
                     errors["base"] = "unreachable"
-
             if not errors:
                 self.hass.config_entries.async_update_entry(
                     self.config_entry, data=user_input

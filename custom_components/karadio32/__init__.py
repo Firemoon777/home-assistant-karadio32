@@ -7,8 +7,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def update_listener(hass, entry):
-    _LOGGER.info(entry.data)
-    _LOGGER.info(entry.options)
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_setup_entry(
