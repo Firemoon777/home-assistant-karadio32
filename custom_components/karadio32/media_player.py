@@ -28,9 +28,7 @@ _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=5)
 
 MEDIA_PLAYER_PLATFORM_SCHEMA = MEDIA_PLAYER_PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_URL): cv.string,
-    }
+    {vol.Required(CONF_URL): cv.string, vol.Optional("source_list"): cv.ensure_list}
 )
 
 
@@ -45,15 +43,20 @@ class Karadio32(MediaPlayerEntity):
     ):
         super().__init__()
         self.api: Karadio32Api = api
-        self._attr_unique_id = api.host
         self._attr_unique_id = f"KaRadio32-{api.host}"
         if source_list:
             self._attr_source_list = source_list
+        else:
+            self._attr_source_list = []
         self.supported_features = (
             MediaPlayerEntityFeature.PLAY
             | MediaPlayerEntityFeature.STOP
+            | MediaPlayerEntityFeature.PAUSE
+            | MediaPlayerEntityFeature.TURN_OFF
+            | MediaPlayerEntityFeature.TURN_ON
             | MediaPlayerEntityFeature.SELECT_SOURCE
             | MediaPlayerEntityFeature.VOLUME_SET
+            | MediaPlayerEntityFeature.VOLUME_STEP
         )
         self.sw_version = sw_version
         self._attr_volume_step = 0.01
@@ -71,8 +74,21 @@ class Karadio32(MediaPlayerEntity):
         self._attr_state = MediaPlayerState.PAUSED
 
     async def async_media_play(self):
-        await self.api.play(self._attr_source_list.index(self._attr_source))
+        if self._attr_source_list:
+            await self.api.play(self._attr_source_list.index(self._attr_source))
+        else:
+            await self.api.start()
+
         self._attr_state = MediaPlayerState.PLAYING
+
+    async def async_media_pause(self):
+        return await self.async_media_stop()
+
+    async def async_turn_on(self) -> None:
+        await self.async_media_play()
+
+    async def async_turn_off(self) -> None:
+        await self.async_media_stop()
 
     async def async_select_source(self, source):
         self._attr_source = source
@@ -89,8 +105,9 @@ class Karadio32(MediaPlayerEntity):
         self._attr_state = (
             MediaPlayerState.PAUSED if info["sts"] == "0" else MediaPlayerState.PLAYING
         )
-        self._attr_source = self._attr_source_list[int(info["num"])]
-        _LOGGER.info(info)
+        source_id = int(info.get("num", 0))
+        if source_id < len(self._attr_source_list):
+            self._attr_source = self._attr_source_list[source_id]
 
 
 async def async_setup_entry(
@@ -99,7 +116,6 @@ async def async_setup_entry(
     async_add_entities,
 ):
     config = hass.data[DOMAIN][config_entry.entry_id]
-    _LOGGER.info(config)
     session = async_get_clientsession(hass)
     api = Karadio32Api(config[CONF_URL], session)
     player = Karadio32(api, config.get("source_list", []), config.get("sw_version"))
@@ -114,5 +130,5 @@ async def async_setup_platform(
 ) -> None:
     session = async_get_clientsession(hass)
     api = Karadio32Api(config[CONF_URL], session)
-    player = Karadio32(api)
+    player = Karadio32(api, config.get("source_list", []))
     async_add_entities([player], update_before_add=True)
